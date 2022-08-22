@@ -1,6 +1,20 @@
-import { Controller, Get, Post, Body, Delete, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Delete,
+  Param,
+  UsePipes,
+  ValidationPipe,
+  Req,
+  Headers,
+  BadRequestException,
+} from '@nestjs/common';
+import { UserDto, UserDtoParams } from './dtos/user.dto';
 import { User } from './interfaces/user.interface';
 import { UserService } from './user.service';
+import { Request } from 'express';
 
 @Controller('users')
 export class UserController {
@@ -16,8 +30,16 @@ export class UserController {
   }
 
   @Get(':email')
-  getUserByEmail(@Param('email') email: string): User {
-    return this.userService.getUserByEmail(email);
+  async getUserByEmail(
+    @Param() params: UserDtoParams,
+    @Req() req: Request,
+    @Headers() header,
+  ): Promise<User> {
+    try {
+      return this.userService.getUserByEmail(params.email);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   /**
@@ -26,7 +48,8 @@ export class UserController {
    * @returns
    */
   @Post()
-  createUser(@Body() user: User): User {
+  @UsePipes(new ValidationPipe())
+  createUser(@Body() user: UserDto): User {
     return this.userService.addUser(user);
     // return 'Hello World!';
   }
@@ -37,7 +60,7 @@ export class UserController {
    * @returns the remaining users
    */
   @Delete(':email')
-  deleteUser(@Param() email: string): User[] {
-    return this.userService.deleteUser(email);
+  deleteUser(@Param() params: UserDtoParams): User[] {
+    return this.userService.deleteUser(params.email);
   }
 }
