@@ -6,18 +6,14 @@ import {
 } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LoggerMiddleware } from './user/middlewares/logger.middleware';
-import { UserModule } from './user/user.module';
+import { DatabaseModule } from './database/database.module';
+// import { LoggerMiddleware } from './user/middlewares/logger.middleware';
+// import { UserModule } from './user/user.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
-  imports: [UserModule],
+  imports: [TasksModule, DatabaseModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes({ path: 'users', method: RequestMethod.GET });
-  }
-}
+export class AppModule {}
